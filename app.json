@@ -31,7 +31,8 @@
       },
       "permissions": [
         "android.permission.RECORD_AUDIO"
-      ]
+      ],
+      "package": "ru.purpleschool.demo.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -50,7 +51,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/icons/notification-icon.png",
+          "icon": "./assets/icon.png",
           "color": "#16171D"
         }
       ],
