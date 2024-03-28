@@ -1,4 +1,4 @@
-import { StyleSheet, View, Image } from 'react-native';
+import { StyleSheet, View, Image, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
 import { Input } from '../shared/Input/Input';
 import { Colors, Gaps } from '../shared/tokens';
 import { Button } from '../shared/Button/Button';
@@ -8,12 +8,17 @@ import { CustomLink } from '../shared/CustomLink/CustomLink';
 import { useAtom } from 'jotai';
 import { loginAtom } from '../entities/auth/model/auth.state';
 import { router } from 'expo-router';
+import { useScreenOrientation } from '../shared/hooks';
+import { Orientation } from 'expo-screen-orientation';
 
 export default function Login() {
 	const [localError, setLocalError] = useState<string | undefined>();
 	const [email, setEmail] = useState<string>();
 	const [password, setPassword] = useState<string>();
 	const [{ access_token, isLoading, error }, login] = useAtom(loginAtom);
+	const orientation = useScreenOrientation();
+	const inputWidth =
+		orientation !== Orientation.PORTRAIT_UP ? Dimensions.get('window').width / 2 - 16 - 48 : 'auto';
 
 	const submit = () => {
 		if (!email) {
@@ -42,15 +47,38 @@ export default function Login() {
 	return (
 		<View style={styles.container}>
 			<ErrorNotification error={localError} />
-			<View style={styles.content}>
+			<KeyboardAvoidingView
+				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+				style={styles.content}
+			>
 				<Image style={styles.logo} source={require('../assets/logo.png')} resizeMode="contain" />
 				<View style={styles.form}>
-					<Input placeholder="Email" onChangeText={setEmail} />
-					<Input isPassword placeholder="Пароль" onChangeText={setPassword} />
+					<View
+						style={{
+							...styles.inputs,
+							flexDirection: orientation === Orientation.PORTRAIT_UP ? 'column' : 'row',
+						}}
+					>
+						<Input
+							style={{
+								width: inputWidth,
+							}}
+							placeholder="Email"
+							onChangeText={setEmail}
+						/>
+						<Input
+							style={{
+								width: inputWidth,
+							}}
+							isPassword
+							placeholder="Пароль"
+							onChangeText={setPassword}
+						/>
+					</View>
 					<Button text="Войти" onPress={submit} isLoading={isLoading} />
 				</View>
 				<CustomLink href={'/restore'} text="Восстановить пароль" />
-			</View>
+			</KeyboardAvoidingView>
 		</View>
 	);
 }
@@ -71,6 +99,12 @@ const styles = StyleSheet.create({
 		gap: Gaps.g16,
 	},
 	logo: {
-		width: 220,
+		width: Platform.select({
+			ios: 200,
+			android: 150,
+		}),
+	},
+	inputs: {
+		gap: Gaps.g16,
 	},
 });
